@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Consultorio Psicología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h1>Bienvenido</h1>
+                <p>Consultorio de Psicología</p>
+            </div>
+
+            <form th:action="@{/login}" method="post" class="login-form">
+                <div class="alert alert-danger" th:if="${param.error}">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Credenciales incorrectas
+                </div>
+                <div class="alert alert-success" th:if="${param.logout}">
+                    <i class="fas fa-check-circle"></i>
+                    Has cerrado sesión correctamente
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" 
+                               name="username" 
+                               placeholder="Correo electrónico"
+                               required
+                               autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" 
+                               name="password" 
+                               placeholder="Contraseña"
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="login-button">
+                        <span>Iniciar Sesión</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="additional-options">
+                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                    <a href="/registro" class="register">Crear cuenta nueva</a>
+                </div>
+                <input type="hidden" name="default-target-url" value="/redirect"/>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

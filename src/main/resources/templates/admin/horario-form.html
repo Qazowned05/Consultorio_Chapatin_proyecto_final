@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${horario.id != null ? 'Editar Horario' : 'Nuevo Horario'} + ' - Consultorio Psicología'">Formulario Horario</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin-panel.css}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-brain"></i>
+                <span>Panel Administrativo</span>
+            </div>
+
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <span class="user-name">Administrador</span>
+                <span class="user-role">Administrador</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li>
+                    <a th:href="@{/admin/panel}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/usuarios}">
+                        <i class="fas fa-users"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/psicologos}">
+                        <i class="fas fa-user-md"></i>
+                        <span>Psicólogos</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/especialidades}">
+                        <i class="fas fa-certificate"></i>
+                        <span>Especialidades</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/horarios}" class="active">
+                        <i class="fas fa-clock"></i>
+                        <span>Horarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/citas}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Citas</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Panel Administrativo</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <a th:href="@{/admin/horarios}">Horarios</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span th:text="${horario.id != null ? 'Editar' : 'Nuevo'}">Formulario</span>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2 th:text="${horario.id != null ? 'Editar Horario' : 'Nuevo Horario'}">
+                            <i class="fas fa-clock"></i> Formulario Horario
+                        </h2>
+                    </div>
+
+                    <form th:action="@{/admin/horarios/guardar}" method="post" th:object="${horario}" class="admin-form">
+                        <input type="hidden" th:field="*{id}">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="psicologo">Psicólogo:</label>
+                                <select id="psicologo" th:field="*{psicologo.id}" required class="form-control">
+                                    <option value="">Seleccionar psicólogo</option>
+                                    <option th:each="psicologo : ${psicologos}" 
+                                            th:value="${psicologo.id}" 
+                                            th:text="${psicologo.nombre + ' ' + psicologo.apellido + ' - ' + psicologo.especialidad?.nombre}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fecha">Fecha:</label>
+                                <input type="date" id="fecha" th:field="*{fecha}" required class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="horaInicio">Hora de Inicio:</label>
+                                <input type="time" id="horaInicio" th:field="*{horaInicio}" required class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="horaFin">Hora de Fin:</label>
+                                <input type="time" id="horaFin" th:field="*{horaFin}" required class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="disponible">Estado:</label>
+                                <select id="disponible" th:field="*{disponible}" required class="form-control">
+                                    <option value="">Seleccionar estado</option>
+                                    <option value="true">Disponible</option>
+                                    <option value="false">Ocupado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <a th:href="@{/admin/horarios}" class="btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

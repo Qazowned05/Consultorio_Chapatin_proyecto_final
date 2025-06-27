@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Dashboard - Consultorio Psicología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/paciente-dashboard.css}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Mi Espacio</span>
+            </div>
+
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="user-name" th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Paciente</span>
+                <span class="user-role">Paciente</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li>
+                    <a th:href="@{/paciente/dashboard}" class="active">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/citas}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Mis Citas</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/agendar}">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Agendar Cita</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/psicologos}">
+                        <i class="fas fa-user-md"></i>
+                        <span>Profesionales</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/perfil}">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="welcome-section">
+                    <h1>¡Hola, <span th:text="${usuario.nombre}">Nombre</span>!</h1>
+                    <p>Bienvenido a tu espacio personal de salud mental</p>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="current-date">
+                        <i class="fas fa-calendar"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Mensajes -->
+                <div th:if="${successMessage}" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Total de Citas</h3>
+                            <p class="stat-number" th:text="${totalCitas}">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card warning">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Citas Pendientes</h3>
+                            <p class="stat-number" th:text="${citasPendientes}">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card success">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Citas Confirmadas</h3>
+                            <p class="stat-number" th:text="${citasConfirmadas}">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Próximas Citas -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2><i class="fas fa-calendar-alt"></i> Mis Próximas Citas</h2>
+                        <a th:href="@{/paciente/agendar}" class="btn-primary">
+                            <i class="fas fa-plus"></i> Agendar Nueva Cita
+                        </a>
+                    </div>
+
+                    <div class="citas-container">
+                        <div th:if="${#lists.isEmpty(proximasCitas)}" class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3>No tienes citas próximas</h3>
+                            <p>¡Agenda tu primera cita para comenzar tu proceso!</p>
+                            <a th:href="@{/paciente/agendar}" class="btn-primary">
+                                <i class="fas fa-plus"></i> Agendar Cita
+                            </a>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(proximasCitas)}" class="citas-list">
+                            <div th:each="cita : ${proximasCitas}" class="cita-card">
+                                <div class="cita-info">
+                                    <div class="cita-header">
+                                        <h4 th:text="${cita.psicologo?.nombre + ' ' + (cita.psicologo?.apellido ?: '') ?: 'Sin psicólogo'}">Dr. Nombre Psicólogo</h4>
+                                        <span class="status-badge" th:text="${cita.estado}">Estado</span>
+                                    </div>
+                                    <div class="cita-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-calendar"></i>
+                                            <span th:text="${cita.fecha}">Fecha</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span th:text="${cita.horaInicio}">Hora</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-stethoscope"></i>
+                                            <span th:text="${cita.psicologo?.especialidad?.nombre ?: 'Sin especialidad'}">Especialidad</span>
+                                        </div>
+                                        <div class="detail-item" th:if="${cita.motivo}">
+                                            <i class="fas fa-comment"></i>
+                                            <span th:text="${cita.motivo}">Motivo</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cita-actions">
+                                    <a th:href="@{/paciente/citas/cancelar/{id}(id=${cita.id})}" 
+                                       class="btn-cancel"
+                                       onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Consultorio Psicología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <i class="fas fa-brain"></i>
+                <h1>Crear Cuenta</h1>
+                <p>Completa tus datos para registrarte</p>
+            </div>
+
+            <form th:action="@{/registro}" method="post" th:object="${usuario}" class="register-form">
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" 
+                               th:field="*{nombre}" 
+                               placeholder="Nombre"
+                               required>
+                    </div>
+                    <span class="error-message" th:if="${#fields.hasErrors('nombre')}" 
+                          th:errors="*{nombre}"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" 
+                               th:field="*{apellido}" 
+                               placeholder="Apellido"
+                               required>
+                    </div>
+                    <span class="error-message" th:if="${#fields.hasErrors('apellido')}" 
+                          th:errors="*{apellido}"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" 
+                               th:field="*{email}" 
+                               placeholder="Correo electrónico"
+                               required>
+                    </div>
+                    <span class="error-message" th:if="${#fields.hasErrors('email')}" 
+                          th:errors="*{email}"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" 
+                               th:field="*{telefono}" 
+                               placeholder="Teléfono"
+                               required>
+                    </div>
+                    <span class="error-message" th:if="${#fields.hasErrors('telefono')}" 
+                          th:errors="*{telefono}"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" 
+                               th:field="*{password}" 
+                               placeholder="Contraseña"
+                               required>
+                        <button type="button" class="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="error-message" th:if="${#fields.hasErrors('password')}" 
+                          th:errors="*{password}"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" 
+                               name="confirmarPassword" 
+                               placeholder="Confirmar contraseña"
+                               required>
+                        <button type="button" class="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="register-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Registrarse
+                </button>
+
+                <div class="login-link">
+                    ¿Ya tienes una cuenta? 
+                    <a th:href="@{/login}">Iniciar Sesión</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle password visibility
+            document.querySelectorAll('.toggle-password').forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('input');
+                    const icon = this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+
+            // Password validation
+            const form = document.querySelector('.register-form');
+            form.addEventListener('submit', function(e) {
+                const password = form.querySelector('[name="password"]');
+                const confirmPassword = form.querySelector('[name="confirmarPassword"]');
+                
+                if (password.value !== confirmPassword.value) {
+                    e.preventDefault();
+                    alert('Las contraseñas no coinciden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

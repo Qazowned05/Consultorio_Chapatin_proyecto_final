@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - Consultorio Psicología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin-panel.css}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-brain"></i>
+                <span>Panel Administrativo</span>
+            </div>
+
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <span class="user-name" th:text="${usuario}">admin@email.com</span>
+                <span class="user-role">Administrador</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li>
+                    <a href="#dashboard" class="active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/usuarios}">
+                        <i class="fas fa-users"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/psicologos}">
+                        <i class="fas fa-user-md"></i>
+                        <span>Psicólogos</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/especialidades}">
+                        <i class="fas fa-certificate"></i>
+                        <span>Especialidades</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/horarios}">
+                        <i class="fas fa-clock"></i>
+                        <span>Horarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/citas}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Citas</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Panel Administrativo</span>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Buscar...">
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Stats reales -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Total Usuarios</h3>
+                            <p class="stat-number" th:text="${totalUsuarios}">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon psychologists">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Psicólogos</h3>
+                            <p class="stat-number" th:text="${totalPsicologos}">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon appointments">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Especialidades</h3>
+                            <p class="stat-number" th:text="${totalEspecialidades}">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Citas Recientes -->
+                <div class="recent-activity">
+                    <div class="section-header">
+                        <h2>Citas Recientes</h2>
+                        <a th:href="@{/admin/citas/nuevo}" class="btn-primary">
+                            <i class="fas fa-plus"></i> Nueva Cita
+                        </a>
+                    </div>
+
+                    <div class="activity-table-container">
+                        <table class="activity-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Paciente</th>
+                                    <th>Psicólogo</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cita : ${citasRecientes}">
+                                    <td th:text="${cita.id}">#1234</td>
+                                    <td th:text="${cita.paciente?.nombre + ' ' + (cita.paciente?.apellido ?: '') ?: 'Sin paciente'}">Nombre Paciente</td>
+                                    <td th:text="${cita.psicologo?.nombre + ' ' + (cita.psicologo?.apellido ?: '') ?: 'Sin psicólogo'}">Nombre Psicólogo</td>
+                                    <td th:text="${cita.fecha ?: 'Sin fecha'}">Fecha</td>
+                                    <td th:text="${cita.horaInicio ?: 'Sin hora'}">Hora</td>
+                                    <td>
+                                        <span class="status-badge" th:text="${cita.estado ?: 'Sin estado'}">Estado</span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-icon edit">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-icon delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Horarios - Consultorio Psicología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin-panel.css}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-brain"></i>
+                <span>Panel Administrativo</span>
+            </div>
+
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <span class="user-name">Administrador</span>
+                <span class="user-role">Administrador</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li>
+                    <a th:href="@{/admin/panel}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/usuarios}">
+                        <i class="fas fa-users"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/psicologos}">
+                        <i class="fas fa-user-md"></i>
+                        <span>Psicólogos</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/especialidades}">
+                        <i class="fas fa-certificate"></i>
+                        <span>Especialidades</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/horarios}" class="active">
+                        <i class="fas fa-clock"></i>
+                        <span>Horarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/citas}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Citas</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Panel Administrativo</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Horarios</span>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Mensajes -->
+                <div th:if="${successMessage}" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+                <!-- Header con botón nuevo -->
+                <div class="section-header">
+                    <h2><i class="fas fa-clock"></i> Gestión de Horarios</h2>
+                    <a th:href="@{/admin/horarios/nuevo}" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Horario
+                    </a>
+                </div>
+
+                <!-- Tabla de horarios -->
+                <div class="activity-table-container">
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Psicólogo</th>
+                                <th>Fecha</th>
+                                <th>Hora Inicio</th>
+                                <th>Hora Fin</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="horario : ${horarios}">
+                                <td th:text="${horario.id}">1</td>
+                                <td th:text="${horario.psicologo.nombre + ' ' + horario.psicologo.apellido}">Nombre Psicólogo</td>
+                                <td th:text="${#temporals.format(horario.fecha, 'dd/MM/yyyy')}">Fecha</td>
+                                <td th:text="${#temporals.format(horario.horaInicio, 'HH:mm')}">Hora Inicio</td>
+                                <td th:text="${#temporals.format(horario.horaFin, 'HH:mm')}">Hora Fin</td>
+                                <td>
+                                    <span th:class="${'status-badge ' + (horario.disponible ? 'disponible' : 'ocupado')}"
+                                          th:text="${horario.disponible ? 'Disponible' : 'Ocupado'}">Estado</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a th:href="@{/admin/horarios/editar/{id}(id=${horario.id})}" class="btn-icon edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a th:href="@{/admin/horarios/eliminar/{id}(id=${horario.id})}" 
+                                           class="btn-icon delete"
+                                           onclick="return confirm('¿Estás seguro de eliminar este horario?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

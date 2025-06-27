@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Citas - Consultorio Psicología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/paciente-dashboard.css}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Mi Espacio</span>
+            </div>
+
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="user-name" th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Paciente</span>
+                <span class="user-role">Paciente</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li>
+                    <a th:href="@{/paciente/dashboard}">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/citas}" class="active">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Mis Citas</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/agendar}">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Agendar Cita</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/psicologos}">
+                        <i class="fas fa-user-md"></i>
+                        <span>Profesionales</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/perfil}">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <a th:href="@{/paciente/dashboard}">Inicio</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Mis Citas</span>
+                </div>
+                <div class="top-bar-actions">
+                    <a th:href="@{/paciente/agendar}" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nueva Cita
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Mensajes -->
+                <div th:if="${successMessage}" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+                <!-- Título -->
+                <div class="page-header">
+                    <h1><i class="fas fa-calendar-alt"></i> Mis Citas</h1>
+                    <p>Aquí puedes ver todas tus citas programadas, pasadas y futuras</p>
+                </div>
+
+                <!-- Citas -->
+                <div class="section-card">
+                    <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>No tienes citas registradas</h3>
+                        <p>¡Agenda tu primera cita para comenzar tu proceso!</p>
+                        <a th:href="@{/paciente/agendar}" class="btn-primary">
+                            <i class="fas fa-plus"></i> Agendar Primera Cita
+                        </a>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(citas)}" class="citas-timeline">
+                        <div th:each="cita : ${citas}" class="cita-timeline-item">
+                            <div class="timeline-marker">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="cita-card-timeline">
+                                <div class="cita-header">
+                                    <div class="cita-title">
+                                        <h3 th:text="${cita.psicologo?.nombre + ' ' + (cita.psicologo?.apellido ?: '') ?: 'Sin psicólogo'}">Dr. Nombre Psicólogo</h3>
+                                        <span class="especialidad" th:text="${cita.psicologo?.especialidad?.nombre ?: 'Sin especialidad'}">Especialidad</span>
+                                    </div>
+                                    <span class="status-badge" th:text="${cita.estado ?: 'Sin estado'}">Estado</span>
+                                </div>
+                                
+                                <div class="cita-details">
+                                    <div class="detail-row">
+                                        <div class="detail-item">
+                                            <i class="fas fa-calendar"></i>
+                                            <span th:text="${cita.fecha ?: 'Sin fecha'}">Fecha</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span th:text="${cita.horaInicio ?: 'Sin hora'}">Hora</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="detail-row" th:if="${cita.motivo}">
+                                        <div class="detail-item full-width">
+                                            <i class="fas fa-comment"></i>
+                                            <span th:text="${cita.motivo}">Motivo de la consulta</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="cita-actions">
+                                    <a th:href="@{/paciente/citas/cancelar/{id}(id=${cita.id})}" 
+                                       class="btn-cancel"
+                                       onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
+                                        <i class="fas fa-times"></i> Cancelar Cita
+                                    </a>
+                                </div>
+                                
+                                <div class="cita-meta">
+                                    <small class="cita-id">Cita #<span th:text="${cita.id}">001</span></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .page-header {
+            margin-bottom: 30px;
+        }
+        
+        .page-header h1 {
+            color: var(--text-color);
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-header p {
+            color: var(--light-text);
+            font-size: 16px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--light-text);
+            font-size: 14px;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb i.fa-chevron-right {
+            font-size: 12px;
+        }
+        
+        .citas-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .cita-timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .cita-timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 50px;
+            width: 2px;
+            height: calc(100% + 10px);
+            background: var(--border-color);
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -22px;
+            top: 20px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            z-index: 1;
+        }
+        
+        .timeline-marker.pendiente {
+            background: var(--warning-color);
+        }
+        
+        .timeline-marker.confirmada {
+            background: var(--success-color);
+        }
+        
+        .timeline-marker.cancelada {
+            background: var(--error-color);
+        }
+        
+        .cita-card-timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .cita-card-timeline:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .cita-title h3 {
+            color: var(--text-color);
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .especialidad {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .detail-row {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .detail-item.full-width {
+            flex: 1;
+        }
+        
+        .cita-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--light-text);
+        }
+        
+        @media (max-width: 768px) {
+            .detail-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .cita-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</body>
+</html>

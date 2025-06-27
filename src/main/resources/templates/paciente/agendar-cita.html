@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Cita - Consultorio Psicología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/paciente-dashboard.css}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Mi Espacio</span>
+            </div>
+
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="user-name" th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Paciente</span>
+                <span class="user-role">Paciente</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li>
+                    <a th:href="@{/paciente/dashboard}">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/citas}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Mis Citas</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/agendar}" class="active">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Agendar Cita</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/psicologos}">
+                        <i class="fas fa-user-md"></i>
+                        <span>Profesionales</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/perfil}">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <a th:href="@{/paciente/dashboard}">Inicio</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Agendar Cita</span>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Mensajes -->
+                <div th:if="${successMessage}" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+                <!-- Título -->
+                <div class="page-header">
+                    <h1><i class="fas fa-plus-circle"></i> Agendar Nueva Cita</h1>
+                    <p>Complete el formulario para solicitar una cita con nuestros profesionales</p>
+                </div>
+
+                <!-- Formulario -->
+                <div class="form-container">
+                    <form th:action="@{/paciente/agendar}" method="post" th:object="${cita}" class="agendar-form">
+                        
+                        <!-- Paso 1: Selección de Especialidad y Psicólogo -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-user-md"></i> Seleccionar Profesional</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="especialidad">Especialidad:</label>
+                                    <select id="especialidad" class="form-control" onchange="filtrarPsicologos()">
+                                        <option value="">Todas las especialidades</option>
+                                        <option th:each="especialidad : ${especialidades}" 
+                                                th:value="${especialidad.id}" 
+                                                th:text="${especialidad.nombre}"></option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="psicologo">Psicólogo:</label>
+                                    <select id="psicologo" th:field="*{psicologo.id}" required class="form-control">
+                                        <option value="">Seleccionar psicólogo</option>
+                                        <option th:each="psicologo : ${psicologos}" 
+                                                th:value="${psicologo.id}"
+                                                th:data-especialidad="${psicologo.especialidad?.id}"
+                                                th:text="${psicologo.nombre + ' ' + psicologo.apellido + ' - ' + (psicologo.especialidad?.nombre ?: 'Psicología General')}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 2: Fecha y Hora -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-calendar-alt"></i> Fecha y Hora</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fecha">Fecha preferida:</label>
+                                    <input type="date" id="fecha" th:field="*{fecha}" required class="form-control"
+                                           th:min="${#temporals.format(T(java.time.LocalDate).now().plusDays(1), 'yyyy-MM-dd')}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="horaInicio">Hora preferida:</label>
+                                    <select id="horaInicio" th:field="*{horaInicio}" required class="form-control">
+                                        <option value="">Seleccionar hora</option>
+                                        <option value="08:00">08:00 AM</option>
+                                        <option value="09:00">09:00 AM</option>
+                                        <option value="10:00">10:00 AM</option>
+                                        <option value="11:00">11:00 AM</option>
+                                        <option value="12:00">12:00 PM</option>
+                                        <option value="14:00">02:00 PM</option>
+                                        <option value="15:00">03:00 PM</option>
+                                        <option value="16:00">04:00 PM</option>
+                                        <option value="17:00">05:00 PM</option>
+                                        <option value="18:00">06:00 PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 3: Motivo de la consulta -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-comment-medical"></i> Motivo de la Consulta</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="motivo">Describe brevemente el motivo de tu consulta:</label>
+                                    <textarea id="motivo" th:field="*{motivo}" class="form-control" rows="4"
+                                              placeholder="Ej: Problemas de ansiedad, estrés laboral, dificultades en relaciones, etc."></textarea>
+                                    <small class="form-text">Esta información ayudará al psicólogo a prepararse mejor para tu sesión</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información importante -->
+                        <div class="info-section">
+                            <div class="info-card">
+                                <h4><i class="fas fa-info-circle"></i> Información Importante</h4>
+                                <ul>
+                                    <li>Tu cita quedará en estado <strong>pendiente</strong> hasta ser confirmada por el consultorio</li>
+                                    <li>Recibirás una confirmación dentro de las próximas 24 horas</li>
+                                    <li>Puedes cancelar tu cita hasta 4 horas antes del horario programado</li>
+                                    <li>Si necesitas reprogramar, contacta con nosotros con anticipación</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-calendar-plus"></i> Agendar Cita
+                            </button>
+                            <a th:href="@{/paciente/dashboard}" class="btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .agendar-form {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .form-section {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+        }
+        
+        .form-section:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .form-section h3 {
+            color: var(--text-color);
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+        
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        
+        select.form-control {
+            cursor: pointer;
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .form-text {
+            color: var(--light-text);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .info-section {
+            margin: 20px 0;
+        }
+        
+        .info-card {
+            background: var(--accent-color);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--info-color);
+        }
+        
+        .info-card h4 {
+            color: var(--text-color);
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-card ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .info-card li {
+            padding: 5px 0;
+            color: var(--text-color);
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .info-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .form-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <script>
+        function filtrarPsicologos() {
+            const especialidadSelect = document.getElementById('especialidad');
+            const psicologoSelect = document.getElementById('psicologo');
+            const especialidadId = especialidadSelect.value;
+            
+            // Mostrar todos los psicólogos si no hay especialidad seleccionada
+            for (let option of psicologoSelect.options) {
+                if (option.value === '') continue;
+                
+                if (especialidadId === '' || option.dataset.especialidad === especialidadId) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+            
+            // Limpiar selección si el psicólogo actual no coincide con la especialidad
+            if (psicologoSelect.value && psicologoSelect.selectedOptions[0].dataset.especialidad !== especialidadId && especialidadId !== '') {
+                psicologoSelect.value = '';
+            }
+        }
+        
+        // Validar fecha mínima al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaInput = document.getElementById('fecha');
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const minDate = tomorrow.toISOString().split('T')[0];
+            fechaInput.setAttribute('min', minDate);
+        });
+    </script>
+</body>
+</html>

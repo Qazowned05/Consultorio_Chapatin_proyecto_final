@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros Profesionales - Consultorio Psicología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/paciente-dashboard.css}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Mi Espacio</span>
+            </div>
+
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="user-name" th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Paciente</span>
+                <span class="user-role">Paciente</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li>
+                    <a th:href="@{/paciente/dashboard}">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/citas}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Mis Citas</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/agendar}">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Agendar Cita</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/psicologos}" class="active">
+                        <i class="fas fa-user-md"></i>
+                        <span>Profesionales</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/paciente/perfil}">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <a th:href="@{/paciente/dashboard}">Inicio</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Profesionales</span>
+                </div>
+                <div class="top-bar-actions">
+                    <a th:href="@{/paciente/agendar}" class="btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Agendar Cita
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Título -->
+                <div class="page-header">
+                    <h1><i class="fas fa-user-md"></i> Nuestros Profesionales</h1>
+                    <p>Conoce a nuestro equipo de psicólogos especializados</p>
+                </div>
+
+                <!-- Filtro por especialidades -->
+                <div class="filter-section">
+                    <h3>Filtrar por especialidad:</h3>
+                    <div class="filter-chips">
+                        <button class="filter-chip active" onclick="filtrarPorEspecialidad('')">
+                            <i class="fas fa-list"></i> Todas
+                        </button>
+                        <button th:each="especialidad : ${especialidades}" 
+                                class="filter-chip" 
+                                th:onclick="'filtrarPorEspecialidad(' + ${especialidad.id} + ')'"
+                                th:text="${especialidad.nombre}">
+                            Especialidad
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid de psicólogos -->
+                <div class="psicologos-grid">
+                    <div th:each="psicologo : ${psicologos}" 
+                         class="psicologo-card" 
+                         th:data-especialidad="${psicologo.especialidad?.id ?: 'sin-especialidad'}">
+                        
+                        <div class="psicologo-avatar">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        
+                        <div class="psicologo-info">
+                            <h3 th:text="${psicologo.nombre + ' ' + psicologo.apellido}">Dr. Nombre Apellido</h3>
+                            
+                            <div class="especialidad-badge">
+                                <i class="fas fa-stethoscope"></i>
+                                <span th:text="${psicologo.especialidad?.nombre ?: 'Psicología General'}">Especialidad</span>
+                            </div>
+                            
+                            <div class="psicologo-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span th:text="${psicologo.email}">email@consultorio.com</span>
+                                </div>
+                                <div class="detail-item" th:if="${psicologo.telefono}">
+                                    <i class="fas fa-phone"></i>
+                                    <span th:text="${psicologo.telefono}">+1234567890</span>
+                                </div>
+                            </div>
+                            
+                            <div class="especialidad-description" th:if="${psicologo.especialidad?.descripcion}">
+                                <p th:text="${psicologo.especialidad.descripcion}">Descripción de la especialidad del psicólogo</p>
+                            </div>
+                        </div>
+                        
+                        <div class="psicologo-actions">
+                            <a th:href="@{/paciente/agendar}" class="btn-primary">
+                                <i class="fas fa-calendar-plus"></i> Agendar Cita
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado vacío -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h3>No se encontraron profesionales</h3>
+                    <p>No hay psicólogos disponibles para la especialidad seleccionada</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .filter-section h3 {
+            color: var(--text-color);
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-chip {
+            background: var(--background-color);
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .filter-chip:hover {
+            border-color: var(--primary-color);
+            background: var(--accent-color);
+        }
+        
+        .filter-chip.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        .psicologos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .psicologo-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .psicologo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .psicologo-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 32px;
+        }
+        
+        .psicologo-info h3 {
+            color: var(--text-color);
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .especialidad-badge {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            border-radius: 20px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .psicologo-details {
+            margin-bottom: 15px;
+        }
+        
+        .psicologo-details .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+        
+        .psicologo-details .detail-item i {
+            color: var(--primary-color);
+            width: 16px;
+        }
+        
+        .especialidad-description {
+            background: var(--background-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .especialidad-description p {
+            color: var(--light-text);
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .psicologo-actions {
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .psicologos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-chips {
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <script>
+        function filtrarPorEspecialidad(especialidadId) {
+            const cards = document.querySelectorAll('.psicologo-card');
+            const chips = document.querySelectorAll('.filter-chip');
+            const emptyState = document.getElementById('empty-state');
+            let visibleCards = 0;
+            
+            // Actualizar chips activos
+            chips.forEach(chip => chip.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filtrar cards
+            cards.forEach(card => {
+                const cardEspecialidad = card.dataset.especialidad;
+                
+                if (especialidadId === '' || cardEspecialidad === especialidadId.toString()) {
+                    card.style.display = 'block';
+                    visibleCards++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Mostrar/ocultar estado vacío
+            if (visibleCards === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
