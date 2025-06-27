@@ -123,13 +123,59 @@
                     </div>
                 </div>
 
+                <!-- Sección de Reportes -->
+                <div class="reports-section" style="margin: 20px 0;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-line"></i> Reportes y Estadísticas</h2>
+                    </div>
+                    <div class="reports-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                        <div class="report-card" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <h3 style="margin: 0 0 10px 0; font-size: 1.2rem;">📊 Reporte de Citas</h3>
+                                    <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Estadísticas completas de todas las citas registradas con gráficos y análisis detallado</p>
+                                </div>
+                                <div style="font-size: 2.5rem; opacity: 0.7;">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <a th:href="@{/admin/reportes/citas}" class="btn-report" target="_blank" 
+                                   style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.3);">
+                                    <i class="fas fa-download"></i> Descargar PDF
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <h3 style="margin: 0 0 10px 0; font-size: 1.2rem;">👥 Reporte de Psicólogos</h3>
+                                    <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Información detallada del personal, especialidades y actividad por psicólogo</p>
+                                </div>
+                                <div style="font-size: 2.5rem; opacity: 0.7;">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <a th:href="@{/admin/reportes/psicologos}" class="btn-report" target="_blank" 
+                                   style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.3);">
+                                    <i class="fas fa-download"></i> Descargar PDF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Citas Recientes -->
                 <div class="recent-activity">
                     <div class="section-header">
                         <h2>Citas Recientes</h2>
-                        <a th:href="@{/admin/citas/nuevo}" class="btn-primary">
-                            <i class="fas fa-plus"></i> Nueva Cita
-                        </a>
+                        <div>
+                            <a th:href="@{/admin/citas/nuevo}" class="btn-primary">
+                                <i class="fas fa-plus"></i> Nueva Cita
+                            </a>
+                        </div>
                     </div>
 
                     <div class="activity-table-container">

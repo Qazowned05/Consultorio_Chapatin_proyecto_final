@@ -1,8 +1,15 @@
 package cibertec.org.Consultorio_Psicologia.controller;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -13,6 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.lowagie.text.DocumentException;
 
 import cibertec.org.Consultorio_Psicologia.entity.Cita;
 import cibertec.org.Consultorio_Psicologia.entity.Especialidad;
@@ -25,6 +34,7 @@ import cibertec.org.Consultorio_Psicologia.service.CitaService;
 import cibertec.org.Consultorio_Psicologia.service.EspecialidadService;
 import cibertec.org.Consultorio_Psicologia.service.HorarioDisponibleService;
 import cibertec.org.Consultorio_Psicologia.service.PsicologoService;
+import cibertec.org.Consultorio_Psicologia.service.ReportService;
 import cibertec.org.Consultorio_Psicologia.service.UsuarioService;
 
 @Controller
@@ -40,6 +50,8 @@ public class AdminController {
     private EspecialidadService especialidadService;
     @Autowired
     private HorarioDisponibleService horarioService;
+    @Autowired
+    private ReportService reportService;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -312,5 +324,57 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar horario: " + e.getMessage());
         }
         return "redirect:/admin/horarios";
+    }
+    
+    // ===== REPORTES =====
+    
+    /**
+     * Genera y descarga el reporte de citas en PDF
+     */
+    @GetMapping("/reportes/citas")
+    public ResponseEntity<byte[]> generateCitasReportPDF() {
+        try {
+            byte[] pdfBytes = reportService.generateCitasReport();
+            
+            String filename = "reporte_citas_" + 
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + 
+                    ".pdf";
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", filename);
+            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+            
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+            
+        } catch (DocumentException | IOException e) {
+            System.err.println("Error generating report: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**
+     * Genera y descarga el reporte de psicólogos en PDF
+     */
+    @GetMapping("/reportes/psicologos")
+    public ResponseEntity<byte[]> generatePsicologosReportPDF() {
+        try {
+            byte[] pdfBytes = reportService.generatePsicologosReport();
+            
+            String filename = "reporte_psicologos_" + 
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + 
+                    ".pdf";
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", filename);
+            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+            
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+            
+        } catch (DocumentException | IOException e) {
+            System.err.println("Error generating psychologists report: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
