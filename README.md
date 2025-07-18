@@ -14,8 +14,11 @@ una vez dentro, puede agendar citas, cancelar citas, elegir profesionales, y ver
 para inicializar el proyecto y modificarlo a tu antojo, te recomiendo que hagas un clone del repositorio, y uses intelij o vs code.
 luego instala las dependencias necesarias, el jdk que he utilizado es java 21.
 
-tambien cabe mencionar, que solo deberas crear tu base de datos, sin tablas, en mysql, debido a que uso entitys, y este al ejecutar el programa
+tambien cabe mencionar, que solo deberas crear tu base de datos, sin tablas, en mysql, llamalo "consultorio_db" debido a que uso entitys, y este al ejecutar el programa
 crea automaticamente las tablas, configura tu acceso a tu base de datos en el archivo aplication properties.
 
-y eso es todo. muchas gracias.
+y eso es todo. es un proyecto simple, pero bastante util para aprender el uso del patron generic en java, ademas de poder conectar una aplicacion completa, que practicamente
+se puede desplegar en cualquier servidor o en la nube (en mi caso hice un despliegue en azure como prueba)
+
+muchas gracias!!!
 
